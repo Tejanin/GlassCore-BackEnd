@@ -25,7 +25,7 @@ builder.Services.AddCors(options =>
         builder =>
         {
             builder
-                .WithOrigins("*") 
+                .AllowAnyOrigin() 
                 .AllowAnyMethod() 
                 .AllowAnyHeader(); 
         });
@@ -74,6 +74,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowSpecificOrigin");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
