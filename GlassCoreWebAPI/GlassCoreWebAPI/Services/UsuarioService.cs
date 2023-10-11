@@ -16,12 +16,14 @@ namespace GlassCoreWebAPI.Services
         private readonly IRepository<Usuario> _repository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly IUsuarioRepository _usuarioRepository;
         // Inyecto el mapper y el repositorio declarandolos como parametros en el constructor del servicio
-        public UsuarioService(IRepository<Usuario> repository, IMapper mapper, IConfiguration configuration) 
+        public UsuarioService(IRepository<Usuario> repository, IMapper mapper, IConfiguration configuration, IUsuarioRepository usuarioRepository ) 
         {
             _repository = repository;
             _mapper = mapper;   
             _configuration = configuration;
+            _usuarioRepository = usuarioRepository;
         }
 
 
@@ -105,6 +107,13 @@ namespace GlassCoreWebAPI.Services
         public bool CheckIfExists(string email)
         {
             return _repository.Get(u => u.Email == email) != null;
+        }
+
+        public Usuario Modificar(ModificarUsuarioDTO usuarioDTO)
+        {
+            
+
+            return _usuarioRepository.Update(usuarioDTO);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace GlassCoreWebAPI.Interface
 
         TEntity? Get(Expression<Func<TEntity, bool>> filter);
 
-
+        TEntity Modify(TEntity entity, TEntity dto);
 
     }
 }

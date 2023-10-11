@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GlassCoreWebAPI.Models;
 using GlassCoreWebAPI.Services;
-using GlassCoreWebAPI.Models.DTOs.UsuarioDTOs;
+using GlassCoreWebAPI.Models.DTOs.UsuarioDTOs; 
 using GlassCoreWebAPI.Models.DTOs.AulaDTOs;
 using GlassCoreWebAPI.Models.DTOs.ErrorDTOs;
+using NuGet.Protocol.Plugins;
+using GlassCoreWebAPI.Interface;
 
 namespace GlassCoreWebAPI.Controllers
 {
@@ -18,10 +20,13 @@ namespace GlassCoreWebAPI.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly UsuarioService _usuarioService;
+        private readonly GlassCoreContext _context;
+        private readonly IRepository<Usuario> _repository;
 
-        public UsuariosController(UsuarioService usuarioService)
+        public UsuariosController(UsuarioService usuarioService, GlassCoreContext context)
         {
             _usuarioService = usuarioService;
+            _context = context;
         }
 
 
@@ -51,21 +56,32 @@ namespace GlassCoreWebAPI.Controllers
         [Route("/Login")]
         public ActionResult<Usuario> LoginUsuario(LoginUsuarioDTO usuarioDTO)
         {
-            string res = _usuarioService.Login(usuarioDTO);
+            var usuarioLogin = _repository.Get(u => u.UserName == usuarioDTO.UserName);
+            string Token;
+            if (usuarioLogin == null || usuarioLogin.Estado == "Inactivo")
+            {
+                return BadRequest();
+            }
 
 
-                if (res != "Usuario no Existente" && res != "Contrasena incorrecta")
-                {
-                    
-                    return Ok("Login Existoso      " +res);
-                }
-                
-            
-           
-            
-                return BadRequest(res);
-            
+            bool passwordVerified = BCrypt.Net.BCrypt.EnhancedVerify(usuarioDTO.Password + usuarioLogin.Salt, usuarioLogin.Password);
 
+            if (passwordVerified)
+            {
+                Token = _usuarioService.GetToken(usuarioLogin);
+                return Ok(Token);
+            }
+             ;
+            return Unauthorized("Usuario no validado");
+
+
+        }
+
+        [HttpPut]
+
+        public ActionResult<Usuario> PutUsuario(ModificarUsuarioDTO usuarioDTO)
+        {
+            return Ok(_usuarioService.Modificar(usuarioDTO));
         }
 
 

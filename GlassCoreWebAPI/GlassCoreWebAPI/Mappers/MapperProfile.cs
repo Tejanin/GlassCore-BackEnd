@@ -17,6 +17,9 @@ namespace GlassCoreWebAPI.Mappers
             CreateMap<CrearUsuarioDTO, Usuario>();
             CreateMap<Usuario, MostrarUsuarioDTO>();
             CreateMap<LoginUsuarioDTO, Usuario>();
+            CreateMap<ModificarUsuarioDTO, Usuario>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+
 
             // Mapping Configuration de las aulas
             CreateMap<CreateAulaDTO, Aula>();
