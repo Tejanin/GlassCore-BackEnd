@@ -17,6 +17,11 @@ namespace GlassCoreWebAPI.Repositories
 
         }
 
+        public void AddRange(IEnumerable<TEntity> entities)
+        {
+            _glassCoreContext.Set<TEntity>().AddRange(entities);
+        }
+
         public void Create(TEntity entity)
         {
             _glassCoreContext.Set<TEntity>().Add(entity);

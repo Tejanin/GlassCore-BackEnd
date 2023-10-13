@@ -11,5 +11,7 @@ namespace GlassCoreWebAPI.Interface
 
         TEntity Modify(TEntity entity, TEntity dto);
 
+        void AddRange(IEnumerable<TEntity> entities);
+
     }
 }

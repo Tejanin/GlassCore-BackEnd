@@ -10,9 +10,11 @@ namespace GlassCoreWebAPI.Services
         private readonly GlassCoreContext _glassCoreContext;
         private readonly IRepository<Area> _areaRepository;
 
-        public ProfesorService(IRepository<Profesor> repository, IRepository<Area> areaRepository)
+        public ProfesorService(IRepository<Profesor> repository, IRepository<Area> areaRepository, GlassCoreContext context)
         {
             _areaRepository = areaRepository;
+            _repository = repository;
+            _glassCoreContext = context;
 
         }
         public Profesor CreateProfesor(CrearProfesorDTO profesorDTO)

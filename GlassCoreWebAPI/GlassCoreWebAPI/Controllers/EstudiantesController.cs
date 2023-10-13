@@ -25,6 +25,7 @@ namespace GlassCoreWebAPI.Controllers
 
         // GET: api/Estudiantes
         [HttpGet]
+        [Route("api/Ranking")]
         public ActionResult<IEnumerable<Estudiante>> ShowRanking()
         {
             return Ok(_estudianteService.ShowRanking());
@@ -32,7 +33,7 @@ namespace GlassCoreWebAPI.Controllers
 
         [HttpPost]
 
-        public ActionResult<Estudiante> PostUsuario(CrearEstudianteDTO estudianteDTO)
+        public ActionResult<Estudiante> PostEstudiante(CrearEstudianteDTO estudianteDTO)
         {
             try
             {
@@ -45,13 +46,21 @@ namespace GlassCoreWebAPI.Controllers
             
         }
 
+        [HttpGet("estudiante")]
+        
+        public ActionResult<ShowEstudianteDTO> GetEstudiante(int id)
+        {
+            return _estudianteService.GetEstudiante(id);
+        }
+
+
         // GET: api/Estudiantes/5
         // [HttpGet("{id}")]
 
 
         // PUT: api/Estudiantes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-       
+
         // POST: api/Estudiantes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /*  [HttpPost]
@@ -92,6 +101,6 @@ namespace GlassCoreWebAPI.Controllers
               return (_estudianteService.Estudiantes?.Any(e => e.IdEstudiante == id)).GetValueOrDefault();
           }
       }*/
-    } 
+    }
 
 }

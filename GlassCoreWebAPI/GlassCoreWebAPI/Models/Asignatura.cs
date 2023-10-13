@@ -18,4 +18,6 @@ public partial class Asignatura
     public string Estado { get; set; } = null!;
 
     public virtual TipoAsignatura CodigoAsignaturaNavigation { get; set; } = null!;
+
+    public virtual ICollection<Seccion> Seccions { get; set; } = new List<Seccion>();
 }

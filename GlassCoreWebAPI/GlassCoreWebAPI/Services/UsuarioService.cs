@@ -14,16 +14,18 @@ namespace GlassCoreWebAPI.Services
     public class UsuarioService
     {
         private readonly IRepository<Usuario> _repository;
+        private readonly IRepository<Estudiante> _estudianteRepository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IUsuarioRepository _usuarioRepository;
         // Inyecto el mapper y el repositorio declarandolos como parametros en el constructor del servicio
-        public UsuarioService(IRepository<Usuario> repository, IMapper mapper, IConfiguration configuration, IUsuarioRepository usuarioRepository ) 
+        public UsuarioService(IRepository<Usuario> repository, IRepository<Estudiante> estudianteRepository, IMapper mapper, IConfiguration configuration, IUsuarioRepository usuarioRepository ) 
         {
             _repository = repository;
             _mapper = mapper;   
             _configuration = configuration;
             _usuarioRepository = usuarioRepository;
+            _estudianteRepository = estudianteRepository;
         }
 
 
@@ -55,10 +57,10 @@ namespace GlassCoreWebAPI.Services
             return _repository.Get(a => a.Email == usuarioDTO.Email)!;
         }
 
-        public string Login(LoginUsuarioDTO login)
+      /*  public string Login(LoginUsuarioDTO login)
         {
             var usuarioLogin = _repository.Get(u => u.UserName == login.UserName);
-            string Token;
+            
             if (usuarioLogin == null || usuarioLogin.Estado == "Inactivo")
             {
                return "Usuario no Existente";
@@ -69,16 +71,19 @@ namespace GlassCoreWebAPI.Services
 
             if (passwordVerified)
             {
-                Token = GetToken(usuarioLogin);
+                var Token = GetToken(usuarioLogin);
                 return Token;
             }
              ;
             return "Contrasena incorrecta";
 
-        }
+        }*/
 
-        public string GetToken(Usuario usuarioLogged)
+        public JwtSecurityToken GetToken(Usuario usuarioLogged)
         {
+            int estudiante = 14;
+
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
@@ -86,6 +91,7 @@ namespace GlassCoreWebAPI.Services
                 new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                 new Claim("UserId", usuarioLogged.IdUsuario.ToString() ),
                 new Claim("Rol", usuarioLogged.Rol),
+                new Claim("IdEstudiante",estudiante.ToString() )
                // new Claim("IdType", usuarioLogged.IdUsuario.ToString() ),
 
             };
@@ -100,8 +106,8 @@ namespace GlassCoreWebAPI.Services
                 signingCredentials: signIn
                 );
 
-            string Token = new JwtSecurityTokenHandler().WriteToken(token);
-            return Token;
+            
+            return token;
         }
 
         public bool CheckIfExists(string email)

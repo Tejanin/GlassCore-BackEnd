@@ -27,17 +27,26 @@ public partial class GlassCoreContext : DbContext
 
     public virtual DbSet<Ciclo> Ciclos { get; set; }
 
-    public virtual DbSet<Dia> Dia { get; set; }
+    public virtual DbSet<Dium> Dia { get; set; }
 
     public virtual DbSet<Estudiante> Estudiantes { get; set; }
 
+    public virtual DbSet<Horario> Horarios { get; set; }
+
     public virtual DbSet<Profesor> Profesors { get; set; }
+
+    public virtual DbSet<Seccion> Seccions { get; set; }
+
+    public virtual DbSet<SeccionHorario> SeccionHorarios { get; set; }
 
     public virtual DbSet<TipoAsignatura> TipoAsignaturas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Initial Catalog=GlassCore;Integrated Security=True; TrustServerCertificate=True");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Administrador>(entity =>
@@ -134,13 +143,13 @@ public partial class GlassCoreContext : DbContext
                 .HasColumnName("Desc_Ciclo");
         });
 
-        modelBuilder.Entity<Dia>(entity =>
+        modelBuilder.Entity<Dium>(entity =>
         {
             entity.HasKey(e => e.IdDia).HasName("PK__Dia__5EAC30D68759D6EC");
 
             entity.Property(e => e.IdDia).HasColumnName("Id_Dia");
             entity.Property(e => e.NombreDia)
-                .HasMaxLength(7)
+                .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("Nombre_Dia");
         });
@@ -181,6 +190,35 @@ public partial class GlassCoreContext : DbContext
                 .HasConstraintName("FK__Estudiant__Id_Us__6383C8BA");
         });
 
+        modelBuilder.Entity<Horario>(entity =>
+        {
+            entity.HasKey(e => new { e.IdEstudiante, e.IdSeccionHorario, e.IdHorario }).HasName("PK__Horario__2C3B5873DC7C0B20");
+
+            entity.ToTable("Horario");
+
+            entity.Property(e => e.IdEstudiante).HasColumnName("Id_Estudiante");
+            entity.Property(e => e.IdSeccionHorario).HasColumnName("Id_Seccion_Horario");
+            entity.Property(e => e.IdHorario)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("Id_Horario");
+            entity.Property(e => e.CalificacionFinal)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("Calificacion_Final");
+            entity.Property(e => e.CalificacionMd).HasColumnName("Calificacion_MD");
+
+            entity.HasOne(d => d.IdEstudianteNavigation).WithMany(p => p.Horarios)
+                .HasForeignKey(d => d.IdEstudiante)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Horario__Id_Estu__18EBB532");
+
+            entity.HasOne(d => d.IdSeccionHorarioNavigation).WithMany(p => p.Horarios)
+                .HasForeignKey(d => d.IdSeccionHorario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Horario__Id_Secc__17F790F9");
+        });
+
         modelBuilder.Entity<Profesor>(entity =>
         {
             entity.HasKey(e => e.IdProfesor).HasName("PK__Profesor__45D4152AF8F7A5A9");
@@ -202,6 +240,59 @@ public partial class GlassCoreContext : DbContext
                 .HasForeignKey<Profesor>(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Profesor__Id_Usu__4AB81AF0");
+        });
+
+        modelBuilder.Entity<Seccion>(entity =>
+        {
+            entity.HasKey(e => e.IdSeccion).HasName("PK__Seccion__232BC0DE00764293");
+
+            entity.ToTable("Seccion");
+
+            entity.Property(e => e.IdSeccion).HasColumnName("Id_Seccion");
+            entity.Property(e => e.IdAsignatura).HasColumnName("Id_Asignatura");
+            entity.Property(e => e.IdCiclo).HasColumnName("Id_Ciclo");
+            entity.Property(e => e.IdProfesor).HasColumnName("Id_Profesor");
+            entity.Property(e => e.NumSeccion).HasColumnName("Num_Seccion");
+
+            entity.HasOne(d => d.IdAsignaturaNavigation).WithMany(p => p.Seccions)
+                .HasForeignKey(d => d.IdAsignatura)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Seccion__Id_Asig__0E6E26BF");
+
+            entity.HasOne(d => d.IdCicloNavigation).WithMany(p => p.Seccions)
+                .HasForeignKey(d => d.IdCiclo)
+                .HasConstraintName("FK__Seccion__Id_Cicl__10566F31");
+
+            entity.HasOne(d => d.IdProfesorNavigation).WithMany(p => p.Seccions)
+                .HasForeignKey(d => d.IdProfesor)
+                .HasConstraintName("FK__Seccion__Id_Prof__0F624AF8");
+        });
+
+        modelBuilder.Entity<SeccionHorario>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Seccion___3214EC07817E3BAF");
+
+            entity.ToTable("Seccion_Horario");
+
+            entity.Property(e => e.HoraInicio).HasColumnName("Hora_Inicio");
+            entity.Property(e => e.HoraSalida).HasColumnName("Hora_Salida");
+            entity.Property(e => e.IdAula).HasColumnName("Id_Aula");
+            entity.Property(e => e.IdDia).HasColumnName("Id_Dia");
+            entity.Property(e => e.IdSeccion).HasColumnName("Id_Seccion");
+
+            entity.HasOne(d => d.IdAulaNavigation).WithMany(p => p.SeccionHorarios)
+                .HasForeignKey(d => d.IdAula)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Seccion_H__Id_Au__14270015");
+
+            entity.HasOne(d => d.IdDiaNavigation).WithMany(p => p.SeccionHorarios)
+                .HasForeignKey(d => d.IdDia)
+                .HasConstraintName("FK__Seccion_H__Id_Di__151B244E");
+
+            entity.HasOne(d => d.IdSeccionNavigation).WithMany(p => p.SeccionHorarios)
+                .HasForeignKey(d => d.IdSeccion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Seccion_H__Id_Se__1332DBDC");
         });
 
         modelBuilder.Entity<TipoAsignatura>(entity =>

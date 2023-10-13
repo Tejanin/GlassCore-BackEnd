@@ -14,4 +14,6 @@ public partial class Profesor
     public virtual Area IdAreaNavigation { get; set; } = null!;
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+
+    public virtual ICollection<Seccion> Seccions { get; set; } = new List<Seccion>();
 }

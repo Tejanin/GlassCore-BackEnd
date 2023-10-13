@@ -21,6 +21,8 @@ public partial class Estudiante
 
     public int Trimestre { get; set; }
 
+    public virtual ICollection<Horario> Horarios { get; set; } = new List<Horario>();
+
     public virtual Carrera IdCarreraNavigation { get; set; } = null!;
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;

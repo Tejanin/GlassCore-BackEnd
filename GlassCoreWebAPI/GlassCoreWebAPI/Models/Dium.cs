@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace GlassCoreWebAPI.Models;
 
-public partial class Aula
+public partial class Dium
 {
-    public int IdAula { get; set; }
+    public int IdDia { get; set; }
 
-    public string NombreAula { get; set; } = null!;
+    public string NombreDia { get; set; } = null!;
 
     public virtual ICollection<SeccionHorario> SeccionHorarios { get; set; } = new List<SeccionHorario>();
 }

@@ -12,6 +12,8 @@ using GlassCoreWebAPI.Models.DTOs.AulaDTOs;
 using GlassCoreWebAPI.Models.DTOs.ErrorDTOs;
 using NuGet.Protocol.Plugins;
 using GlassCoreWebAPI.Interface;
+using NuGet.Common;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace GlassCoreWebAPI.Controllers
 {
@@ -23,10 +25,11 @@ namespace GlassCoreWebAPI.Controllers
         private readonly GlassCoreContext _context;
         private readonly IRepository<Usuario> _repository;
 
-        public UsuariosController(UsuarioService usuarioService, GlassCoreContext context)
+        public UsuariosController(UsuarioService usuarioService, GlassCoreContext context, IRepository<Usuario> repository)
         {
             _usuarioService = usuarioService;
             _context = context;
+            _repository = repository;
         }
 
 
@@ -56,26 +59,27 @@ namespace GlassCoreWebAPI.Controllers
         [Route("/Login")]
         public ActionResult<Usuario> LoginUsuario(LoginUsuarioDTO usuarioDTO)
         {
-            var usuarioLogin = _repository.Get(u => u.UserName == usuarioDTO.UserName);
-            string Token;
+            
+            var usuarioLogin = _context.Usuarios.SingleOrDefault(u => u.UserName == usuarioDTO.UserName);
+
             if (usuarioLogin == null || usuarioLogin.Estado == "Inactivo")
             {
                 return BadRequest();
             }
 
-
             bool passwordVerified = BCrypt.Net.BCrypt.EnhancedVerify(usuarioDTO.Password + usuarioLogin.Salt, usuarioLogin.Password);
 
             if (passwordVerified)
             {
-                Token = _usuarioService.GetToken(usuarioLogin);
-                return Ok(Token);
+                var Token = _usuarioService.GetToken(usuarioLogin);
+                var TokenS = new JwtSecurityTokenHandler().WriteToken(Token);
+
+                return Ok(new {Token = TokenS});
             }
-             ;
+
             return Unauthorized("Usuario no validado");
-
-
         }
+
 
         [HttpPut]
 

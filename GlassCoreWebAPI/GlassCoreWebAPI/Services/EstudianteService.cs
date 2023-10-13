@@ -81,5 +81,37 @@ namespace GlassCoreWebAPI.Services
             _repository.Create(estudiante);
             return _repository.Get(e => e.IdUsuario == lastUser.IdUsuario)!;
         }
+
+        public ShowEstudianteDTO GetEstudiante(int id)
+        {
+            // Obtener el estudiante por su ID
+            var estudiante = _repository.Get(e => e.IdEstudiante == id);
+
+            if (estudiante == null)
+            {
+                // Manejar el caso en el que no se encuentra el estudiante
+                throw new InvalidOperationException("Estudiante no encontrado");
+            }
+
+            // Cargar las propiedades de navegación necesarias
+            _glassCoreContext.Entry(estudiante).Reference(e => e.IdUsuarioNavigation).Load();
+            _glassCoreContext.Entry(estudiante).Reference(e => e.IdCarreraNavigation).Load();
+
+            // Proyectar el estudiante en un objeto ShowEstudianteDTO
+            var estudianteDTO = new ShowEstudianteDTO
+            {
+                Nombre = estudiante.IdUsuarioNavigation.NombreUsuario,
+                Apellido = estudiante.IdUsuarioNavigation.ApellidoUsuario,
+                UserName = estudiante.IdUsuarioNavigation.UserName,
+                Indice = estudiante.IndiceGeneral,
+                IndiceTrimestral = estudiante.IndiceTrimestral,
+                Trimestre = estudiante.Trimestre,
+                Carrera = estudiante.IdCarreraNavigation.NombreCarrera,
+                Honor = estudiante.Honor
+            };
+
+            return estudianteDTO;
+        }
+
     }
 }
